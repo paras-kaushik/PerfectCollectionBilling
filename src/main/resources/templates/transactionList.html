@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Transaction List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" crossorigin="anonymous" />
+</head>
+<body>
+<div class="container">
+    <h1>Transaction List</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Transaction Number</th>
+            <th>Transaction Name</th>
+            <th>Transaction Type</th>
+            <th>Total Price</th>
+            <th>Net Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="transaction : ${transactions}">
+            <td th:text="${transaction.transactionNumber}"></td>
+            <td th:text="${transaction.transactionName}"></td>
+            <td th:text="${transaction.transactionType}"></td>
+            <td th:text="${transaction.totalPrice}"></td>
+            <td th:text="${transaction.netPrice}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
