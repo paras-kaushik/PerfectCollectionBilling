@@ -7,26 +7,111 @@
 <body>
 <div class="container">
     <h1>Transaction List</h1>
+    <div class="alert alert-info">
+        <strong>Total Sales for Today: </strong>
+        <span th:text="${totalSales}"></span>
+    </div>
+    <form id="filterForm" class="form-inline mb-3">
+        <label for="date" class="mr-2">Select Date:</label>
+        <input type="date" id="date" name="date" class="form-control mr-3" th:value="${date}" />
+        <label for="sort" class="mr-2">Sort By:</label>
+        <select id="sort" name="sort" class="form-control mr-3">
+            <option value="transactionNumber">Transaction Number</option>
+            <option value="transactionName">Transaction Name</option>
+            <option value="totalPrice">Total Price</option>
+        </select>
+        <label for="pageSize" class="mr-2">Page Size:</label>
+        <select id="pageSize" name="pageSize" class="form-control mr-3">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+        </select>
+        <button type="button" class="btn btn-primary" onclick="filterTransactions()">Filter</button>
+    </form>
     <table class="table">
         <thead>
         <tr>
+            <th>Time</th>
             <th>Transaction Number</th>
-            <th>Transaction Name</th>
-            <th>Transaction Type</th>
             <th>Total Price</th>
-            <th>Net Price</th>
+            <th>Transaction Type</th>
+            <th>Items</th>
+            <th>Delete</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="transaction : ${transactions}">
+            <td th:text="${transaction.createdAt}"></td>
             <td th:text="${transaction.transactionNumber}"></td>
-            <td th:text="${transaction.transactionName}"></td>
-            <td th:text="${transaction.transactionType}"></td>
             <td th:text="${transaction.totalPrice}"></td>
-            <td th:text="${transaction.netPrice}"></td>
+            <td th:text="${transaction.transactionType}"></td>
+
+            <td>
+                <ul>
+                    <li th:each="purchase : ${transaction.purchases}">
+                        <span th:text="${purchase.itemName}"></span>
+                        <span th:text="${purchase.itemQuantity}"></span>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                <a href="#" class="btn btn-danger" th:attr="data-transaction-id=${transaction.id}" onclick="deleteTransaction(this)">Delete</a>
+            </td>
         </tr>
         </tbody>
     </table>
+    <nav>
+        <ul class="pagination">
+            <li
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    class="page-item"
+                    th:classappend="${i == currentPage} ? 'active'">
+                <a
+                        class="page-link"
+                        href="#"
+                        th:onclick="'goToPage(' + ${i} + ')'">
+                    [[${i + 1}]]
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
+
+<script>
+    function filterTransactions() {
+        const date = document.getElementById('date').value;
+        const sort = document.getElementById('sort').value;
+        const pageSize = document.getElementById('pageSize').value;
+        const url = `/transactions?date=${date}&sort=${sort}&pageSize=${pageSize}&page=0`;
+        window.location.href = url;
+    }
+
+    function goToPage(page) {
+        const date = document.getElementById('date').value;
+        const sort = document.getElementById('sort').value;
+        const pageSize = document.getElementById('pageSize').value;
+        const url = `/transactions?date=${date}&sort=${sort}&pageSize=${pageSize}&page=${page}`;
+        window.location.href = url;
+    }
+    function deleteTransaction(element) {
+    console.log(element)
+    const transactionId = element.getAttribute('data-transaction-id');
+    fetch(`/transactions/delete/${transactionId}`, {
+        method: 'DELETE'
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Failed to delete transaction.');
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the transaction.');
+    });
+}
+
+
+
+</script>
 </body>
 </html>

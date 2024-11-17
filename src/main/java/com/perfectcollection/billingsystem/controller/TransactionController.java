@@ -3,11 +3,15 @@ package com.perfectcollection.billingsystem.controller;
 import com.perfectcollection.billingsystem.model.Transaction;
 import com.perfectcollection.billingsystem.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/transactions")
@@ -17,16 +21,34 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping
-    public String getAllTransactions(Model model) {
-        List<Transaction> transactions = transactionService.getAllTransactions();
-        model.addAttribute("transactions", transactions);
-        return "transactionList";
-    }
+    public String getTransactions(
+            @RequestParam("date") Optional<String> date,
+            @RequestParam("sort") Optional<String> sort,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("page") Optional<Integer> page,
+            Model model) {
 
-    @GetMapping("/{id}")
-    @ResponseBody
-    public Transaction getTransactionById(@PathVariable String id) {
-        return transactionService.getTransactionById(id);
+        LocalDate filterDate = date.map(LocalDate::parse).orElse(LocalDate.now());
+        String sortBy = sort.orElse("transactionNumber");
+        int currentPage = page.orElse(0);
+        int size = pageSize.orElse(5);
+
+        Page<Transaction> transactionPage = transactionService.getTransactionsByDate(
+                filterDate, PageRequest.of(currentPage, size, Sort.by(sortBy)));
+
+        double totalSales = transactionPage.getContent().stream()
+                .mapToDouble(Transaction::getTotalPrice)
+                .sum();
+
+        model.addAttribute("transactions", transactionPage.getContent());
+        model.addAttribute("totalPages", transactionPage.getTotalPages());
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("date", filterDate.toString());
+        model.addAttribute("sort", sortBy);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalSales", totalSales);
+
+        return "transactionList";
     }
 
     @PostMapping("/create")
@@ -35,9 +57,10 @@ public class TransactionController {
         return transactionService.saveTransaction(transaction);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseBody
     public void deleteTransaction(@PathVariable String id) {
         transactionService.deleteTransaction(id);
     }
+
 }

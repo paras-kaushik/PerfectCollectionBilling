@@ -4,10 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -28,6 +30,8 @@ public class Transaction {
     private int totalItems;
     private double totalPrice;
     private double netPrice;
+    @CreatedDate
+    private LocalDate createdAt; // Automatically populated
 
     @Data
     @NoArgsConstructor

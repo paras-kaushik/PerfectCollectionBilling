@@ -33,12 +33,12 @@ public class DataInitializer {
 //
 //            Transaction transaction1 = Transaction.builder()
 //                    .transactionNumber(1)
-//                    .transactionName("John Doe")
+//                    .transactionName("Mock Transactions")
 //                    .transactionType("Sale")
 //                    .remarks("First transaction")
 //                    .shopname("Perfect Collection")
 //                    .purchases(Arrays.asList(purchase1, purchase2))
-//                    .totalItems(3)
+//                    .totalItems(2)
 //                    .totalPrice(350.0)
 //                    .netPrice(409.5)
 //                    .build();

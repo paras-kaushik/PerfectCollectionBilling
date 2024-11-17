@@ -24,18 +24,21 @@ const shopItems = {
     22: "Jacket",
     23: "Thermal",
 };
-
+function updateRoughEstimateNumberOnUI(counter){
+    document.getElementById('on-load-counter').innerHTML=counter
+}
 function setupDatePicker() {
     const datepicker = document.getElementById("page-date");
     datepicker.value = new Date().toISOString().split('T')[0];
 }
 function initializeTransactionJson() {
-    var n = localStorage.getItem("on_load_counter") || 0;
+    let onloadCounter = localStorage.getItem("on_load_counter") || 0;
     completeTransactionJson = {
-        transactionNumber: n,
+        transactionNumber: onloadCounter,
         purchases: []
     };
-    localStorage.setItem("on_load_counter", n);
+    localStorage.setItem("on_load_counter", onloadCounter);
+    updateRoughEstimateNumberOnUI(onloadCounter);
 }
 function setupFocusBetweenInputPairs() {
     const inputPairElements = document.querySelectorAll(".input-pair");
@@ -96,9 +99,10 @@ function processDownload() {
     sendTransactionData();
 
     // Update localStorage counters
-    let n = parseInt(localStorage.getItem("on_load_counter")) || 0;
-    n++;
-    localStorage.setItem("on_load_counter", n);
+    let onloadCounter = parseInt(localStorage.getItem("on_load_counter")) || 0;
+    onloadCounter++;
+    localStorage.setItem("on_load_counter", onloadCounter);
+    updateRoughEstimateNumberOnUI(onloadCounter);
 }
 function handleWildInputEnter(e) {
     e.preventDefault();
@@ -111,11 +115,11 @@ function globalKeyUpHandler(event) {
     const name = event.key;
     if (name === "Shift") {
         document.getElementById("download").click();
-    } else if ((name === "z" || name === "Z") && localStorage.getItem("shopname") === "one") {
-        document.getElementById("tbtn").click();
+    } else if ((name === "z" || name === "Z")) {
+        location.href = "/transactions";
     } else if (name === "c" || name === "C") {
         document.getElementById("ttb").click();
-    } else if ((name === "m" || name === "M") && localStorage.getItem("shopname") === "one") {
+    } else if ((name === "m" || name === "M")) {
         location.href = "/users/month";
     }
 }
@@ -203,6 +207,11 @@ function addNewItemToTable(uniqueId, itemName, itemPrice, itemQuantity, rowTotal
             </td>
         </tr>`;
     document.getElementById("table-body").innerHTML += newRow;
+     // Scroll to the newly added row
+        const newRowElement = document.getElementById(uniqueId);
+        if (newRowElement) {
+            newRowElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
 }
 function updateTotalsAfterNewItem(uniqueId, itemName, itemPrice, itemQuantity, rowTotal) {
     completeTransactionJson["purchases"].push({
